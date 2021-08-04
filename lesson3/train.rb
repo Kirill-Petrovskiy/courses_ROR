@@ -36,21 +36,42 @@ class Train
   def route=(route)
      @route = route
      self.station = self.route.stations.first
-   end
+     self.station.get_train(self)
+  end
 
    def next_station
-     self.route.stations[self.route.stations.index(self.station) + 1]
+     if self.station != self.route.stations.last
+       self.route.stations[self.route.stations.index(self.station) + 1]
+     else
+       puts "Поезд находится на конечной станции #{self.station.name}"
+     end
    end
 
    def previous_station
-     self.route.stations[self.route.stations.index(self.station) - 1]
+     if self.station != self.route.stations.first
+       self.route.stations[self.route.stations.index(self.station) - 1]
+     else
+       puts "Поезд находится на станции отправления #{self.station.name}"
+     end
    end
 
    def move_next_station
-     self.station = self.route.stations[self.route.stations.index(self.station) + 1]
+     if self.station != self.route.stations.last
+       self.station.send_train(self)
+       self.station = self.route.stations[self.route.stations.index(self.station) + 1]
+       self.station.get_train(self)
+     else
+       puts "Поезд уже прибыл на конечную станцию #{self.station.name}"
+     end
    end
 
    def move_previous_station
-     self.station = self.route.stations[self.route.stations.index(self.station) - 1]
+     if self.station != self.route.stations.last
+       self.station.send_train(self)
+       self.station = self.route.stations[self.route.stations.index(self.station) - 1]
+       self.station.get_train(self)
+     else
+       puts "Поезд уже прибыл на станцию отправления #{self.station.name}"
+     end
    end
  end

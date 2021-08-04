@@ -15,9 +15,10 @@ class Station
   end
 
   def trains_by_type(type)
+    trains_by_type = []
     self.trains.each do |train|
       if train.type == type
-        puts train
+        train_by_type << train
       end
     end
   end
