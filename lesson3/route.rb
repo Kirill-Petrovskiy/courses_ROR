@@ -14,4 +14,5 @@ class Route
   def delete_station(station)
     self.stations.delete(station)
   end
+
 end
