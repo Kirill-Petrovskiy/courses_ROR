@@ -6,7 +6,6 @@ class Train
     @number = number
     @wagons = []
     @speed = 0
-    @train_type = "Unknown"
   end
 
   def raise_speed(speed)
