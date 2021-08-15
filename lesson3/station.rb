@@ -5,7 +5,7 @@ class Station
     @name = name
     @trains = []
   end
-
+  
   def trains_by_type(type)
     trains_by_type = []
     self.trains.each do |train|
