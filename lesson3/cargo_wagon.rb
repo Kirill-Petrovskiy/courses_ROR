@@ -1,9 +1,8 @@
-class CargoWagon
-  attr_reader :wagon_type
+class CargoWagon < Wagon
 
   def initialize(number)
-    @number = number
+    super
     @wagon_type = "Cargo"
   end
-
+  
 end

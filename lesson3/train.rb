@@ -4,35 +4,39 @@ class Train
 
   def initialize(number)
     @number = number
-    @wagons = []
+    @wagons = {}
     @speed = 0
   end
 
   def raise_speed(speed)
     self.speed += speed
+    puts "Скорость поезда изменилась до #{speed}"
   end
 
   def stop
     self.speed = 0
+    puts "Поезд остановился"
   end
 
   def route=(route)
      @route = route
-     self.station = self.route.stations.first
+     self.station = self.route.stations.values.first
      self.station.get_train(self)
+     puts "Поезду задан маршрут #{route}"
+     puts "Поезд прибыл на начальную станцию маршрута #{self.station}"
   end
 
   def next_station
-    if self.station != self.route.stations.last
-      self.route.stations[self.route.stations.index(self.station) + 1]
+    if self.station != self.route.stations.values.last
+      self.route.stations.values[self.route.stations.values.index(self.station) + 1]
     else
       puts "Поезд находится на конечной станции #{self.station.name}"
     end
   end
 
   def previous_station
-    if self.station != self.route.stations.first
-      self.route.stations[self.route.stations.index(self.station) - 1]
+    if self.station != self.route.stations.values.first
+      self.route.stations.values[self.route.stations.values.index(self.station) - 1]
     else
       puts "Поезд находится на станции отправления #{self.station.name}"
     end
@@ -43,6 +47,7 @@ class Train
     self.station.send_train(self)
     self.station = next_station
     self.station.get_train(self)
+    puts "Поезд прибыл на станцию #{self.station.name}"
   end
 
   def move_previous_station
@@ -50,14 +55,21 @@ class Train
      self.station.send_train(self)
      self.station = previous_station
      self.station.get_train(self)
+     puts "Поезд прибыл на станцию #{self.station.name}"
   end
 
   def add_wagon(wagon)
-    self.wagons << wagon if train_stopped? && type_match?(wagon)
+    if train_stopped? && type_match?(wagon)
+      self.wagons[wagon.number] = wagon
+      puts "К поезду добавлен вагон #{wagon}"
+    end
   end
 
   def delete_wagon (wagon)
-    self.wagons.delete(wagon) if train_stopped? && wagon_in_train?(wagon)
+    if train_stopped? && wagon_in_train?(wagon)
+      self.wagons.delete(wagon.number)
+      puts "От поезда отцеплен вагон #{wagon}"
+    end
   end
 
   protected #ниже методы которые нужны для корректной работы добавления и удаления поезда(тесты) пользователю не нужны
@@ -79,7 +91,7 @@ class Train
   end
 
   def wagon_in_train?(wagon)#Проверяем есть ли такой вагон в составе поезда в интерфейсе не предусмотрен
-    if self.wagons.include?(wagon) && type_match?(wagon)
+    if self.wagons.include?(wagon.number) && type_match?(wagon)
       true
     else
       puts "В поезде нет данного вагона"

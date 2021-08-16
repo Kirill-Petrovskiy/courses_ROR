@@ -3,24 +3,27 @@ class Station
 
   def initialize(name)
     @name = name
-    @trains = []
+    @trains = {}
   end
-  
+
   def trains_by_type(type)
-    trains_by_type = []
-    self.trains.each do |train|
-      if train.train_type == type
-        trains_by_type << train
+    trains_by_type = {}
+
+    self.trains.each_key do |key|
+      if self.trains[key].train_type == type
+        trains_by_type[key] = self.trains[key]
       end
     end
+
+    puts "Поезда типа #{type} на станции #{self} #{trains_by_type}"
   end
 
   def get_train(train)
-    self.trains << train
+    self.trains[train.number] = train
   end
 
   def send_train(train)
-    self.trains.delete(train)
+    self.trains.delete(train.number)
   end
 
 end
