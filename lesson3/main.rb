@@ -7,4 +7,6 @@ require_relative 'cargo_train'
 require_relative 'cargo_wagon'
 require_relative 'passenger_wagon'
 require_relative 'rail_road'
-require_relative 'interface'
+
+rail_road  = RailRoad.new
+rail_road.start

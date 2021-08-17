@@ -14,8 +14,6 @@ class Station
         trains_by_type[key] = self.trains[key]
       end
     end
-
-    puts "Поезда типа #{type} на станции #{self} #{trains_by_type}"
   end
 
   def get_train(train)

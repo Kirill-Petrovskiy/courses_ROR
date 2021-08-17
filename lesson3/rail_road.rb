@@ -10,6 +10,78 @@ class RailRoad
     @type_2 = "Passenger"
   end
 
+  def start
+    rail_road  = RailRoad.new
+
+    main_menu = { 1 => "Добавить новую станцию",
+      2 => "Добавить новый поезд",
+      3 => "Создать маршрут",
+      4 => "Добавить станцию в маршрут",
+      5 => "Удалить станцию из маршрута",
+      6 => "Назначить маршрут поезду",
+      7 => "Создать вагон",
+      8 => "Добавить вагон к проезду",
+      9 => "Отцепить вагон от поезда",
+      10 => "Отправить поезд на следующую станцию",
+      11 => "Отправить поезд на предыдущую станцию",
+      12 => "Просмотреть поезда данного типа на выбранной станции",
+      0 => "Завершить работу"}
+
+    loop do
+      puts "Главное меню"
+      puts "Введите номер для выбора действия или нажмите 0 для выхода"
+
+      user_inpute = rail_road.selection(main_menu)
+
+      case user_inpute
+
+      when "1"
+        rail_road.create_station
+
+      when "2"
+        rail_road.create_train
+
+      when "3"
+        rail_road.create_route
+
+      when "4"
+        rail_road.add_station_in_route
+
+      when "5"
+        rail_road.delete_station_in_route
+
+      when "6"
+        rail_road.train_route
+
+      when "7"
+        rail_road.create_wagon
+
+      when "8"
+        rail_road.add_wagon_train
+
+      when "9"
+        rail_road.delete_wagon_train
+
+      when "10"
+        rail_road.train_move_next_station
+
+      when "11"
+        rail_road.train_move_previous_station
+
+      when "12"
+        rail_road.train_by_type_in_station
+
+      when "0"
+        break
+
+      end
+
+    end
+
+  end
+
+  protected
+
   def selection(main_menu)
     main_menu.each {|key, value| puts "#{key} - #{value}"}
     puts "Выбран пункт:"
@@ -31,13 +103,14 @@ class RailRoad
 
     if type == type_2
       all_train[number] = PassengerTrain.new(number)
-      puts "Добавлен поезд#{all_train[number]}"
+      puts "Добавлен поезд #{all_train[number]}"
     elsif type == type_1
       all_train[number] = CargoTrain.new(number)
-      puts "Добавлен поезд#{all_train[number]}"
+      puts "Добавлен поезд #{all_train[number]}"
     else
-      puts "Нельзя добавить поезда с типом#{type} используйте #{type_1} или #{type_2 } в качестве типа поезда"
+      puts "Нельзя добавить поезда с типом #{type} используйте #{type_1} или #{type_2 } в качестве типа поезда"
     end
+
   end
 
   def create_route
@@ -45,87 +118,48 @@ class RailRoad
     name_route = gets.chomp
     puts "Введите станцию отправления"
     name_station = gets.chomp
-
-    if all_station.include?(name_station)
-      first_station = all_station[name_station]
-      puts "Введите станцию назначения"
-      name_station = gets.chomp
-
-      if all_station.include?(name_station)
-        last_station = all_station[name_station]
-      else
-        puts "Указана несуществующая станция #{name_station}"
-      end
-
-    else
-      puts "Указана несуществующая станция #{name_station}"
-    end
-
-    if last_station != nil && first_station != nil
-      all_route[name_route] = Route.new(first_station, last_station)
-      puts"Создан маршрут #{all_route[name_route]}"
-    else
-      puts "Используйте существующие станции для создания маршрута или предварительно добавьте новые станции"
-    end
+    return unless all_station_include_station(name_station)
+    first_station = all_station[name_station]
+    puts "Введите станцию назначения"
+    name_station = gets.chomp
+    return unless all_station_include_station(name_station)
+    last_station = all_station[name_station]
+    all_route[name_route] = Route.new(first_station, last_station)
+    puts"Создан маршрут #{all_route[name_route]}"
   end
 
   def add_station_in_route
     puts "Введите название маршрута к которому хотите добавить станцию"
     name_route = gets.chomp
-
-    if all_route.include?(name_route)
-      puts "Введите название станции которую хотите добавить к маршруту #{all_route[name_route]}"
-      name_station = gets.chomp
-
-      if all_station.include?(name_station)
-        all_route[name_route].add_station(all_station[name_station])
-        puts "Станция #{all_station[name_station]} добавлена в маршрут #{all_route[name_route]}"
-      else
-        puts "Используйте существующие станции для добавления к маршрут или предварительно добавьте новые станции"
-      end
-
-    else
-      puts "Вы вводите название несуществующего маршрута используйте существующие маршруты или предварительно добавьте новый маршрут"
-    end
+    return unless all_route_include_route(name_route)
+    puts "Введите название станции которую хотите добавить к маршруту #{all_route[name_route]}"
+    name_station = gets.chomp
+    return unless all_station_include_station(name_station)
+    all_route[name_route].add_station(all_station[name_station])
+    puts "Станция #{all_station[name_station]} добавлена в маршрут #{all_route[name_route]}"
   end
 
   def delete_station_in_route
     puts "Введите название маршрута из которого хотите удалить станцию"
     name_route = gets.chomp
-
-    if all_route.include?(name_route)
-      puts "Введите название станции которую хотите удалить из маршрута #{all_route[name_route]}"
-      name_station = gets.chomp
-
-      if all_station.include?(name_station)
-        all_route[name_route].delete_station(all_station[name_station])
-        puts "Станция #{all_station[name_station]} удалена из маршрута #{all_route[name_route]}"
-      else
-        puts "Из маршрута можно удалить только существующие станции"
-      end
-
-    else
-      puts "Вы вводите название несуществующего маршрута"
-    end
+    return unless all_route_include_route(name_route)
+    puts "Введите название станции которую хотите удалить из маршрута #{all_route[name_route]}"
+    name_station = gets.chomp
+    return unless all_station_include_station(name_station)
+    all_route[name_route].delete_station(all_station[name_station])
+    puts "Станция #{all_station[name_station]} удалена из маршрута #{all_route[name_route]}"
   end
 
   def train_route
-    puts "Введите название поезда которому хотите задать маршрут"
-    name_train = gets.chomp
-
-    if all_train.include?(name_train)
-      puts "Введите название маршрута который хотите задать поезду #{all_train[name_train]}"
-      name_route = gets.chomp
-
-      if all_route.include?(name_route)
-        all_train[name_train].route= all_route[name_route]
-      else
-        puts "Вы падетесь задать несуществующий маршрут используйте существующие маршруты или предварительно создайте их"
-      end
-
-    else
-      puts "Такого поезда нет используйте существующие поезда или предварительно создайте его"
-    end
+    puts "Введите номер поезда которому хотите задать маршрут"
+    number_train = gets.chomp
+    return unless all_train_include_train(number_train)
+    puts "Введите название маршрута который хотите задать поезду #{all_train[number_train]}"
+    name_route = gets.chomp
+    return unless all_route_include_route(name_route)
+    all_train[number_train].route = all_route[name_route]
+    puts "Поезду задан маршрут #{all_route[name_route]}"
+    puts "Поезд прибыл на начальную станцию маршрута #{all_route[name_route].stations.values.first.name}"
   end
 
   def create_wagon
@@ -138,8 +172,8 @@ class RailRoad
       all_wagon[number] = PassengerWagon.new(number)
       puts "Добавлен вагон #{all_wagon[number]}"
     elsif type == type_1
-      all_wagon[number] = CargoWagon.new(number)
-      puts "Добавлен вагон#{all_wagon[number]}"
+      self.all_wagon[number] = CargoWagon.new(number)
+      puts "Добавлен вагон#{self.all_wagon[number]}"
     else
       puts "Вы указали несуществующий тип вагона используйте #{type_1} или #{type_2}"
     end
@@ -148,79 +182,116 @@ class RailRoad
   def add_wagon_train
     puts "Введите номер поезда к которому хотите добавить вагон"
     number_train = gets.chomp
-
-    if all_train.include?(number_train)
-      puts "Введите номер вагона который хотите добавить к данному поезду"
-      number_wagon = gets.chomp
-
-      if all_wagon.include?(number_wagon)
-        all_train[number_train].add_wagon(all_wagon[number_wagon])
-      else
-        puts "Такого вагона нет используйте существующие вагоны или предварительно создайте его"
-      end
-
-    else
-      puts "Такого поезда нет используйте существующие поезда или предварительно создайте его"
-    end
+    return unless all_train_include_train(number_train)
+    puts "Введите номер вагона который хотите добавить к данному поезду"
+    number_wagon = gets.chomp
+    return unless all_wagon_include_wagon(number_wagon)
+    return unless type_match?(number_train, number_wagon)
+    return unless train_stoped?(number_train)
+    all_train[number_train].add_wagon(all_wagon[number_wagon])
+    puts "К поезду добавлен вагон #{all_wagon[number_wagon]}"
   end
 
   def delete_wagon_train
     puts"Введите номер поезда у которого хотите удалить вагон"
     number_train = gets.chomp
-
-    if all_train.include?(number_train)
-      puts"Введите номер вагона который хотите удалить у данного поезда"
-      number_wagon = gets.chomp
-
-      if all_wagon.include?(number_wagon)
-        all_train[number_train].delete_wagon(all_wagon[number_wagon])
-      else
-        puts"Такого вагона нет можно отцепить только существующие вагоны"
-      end
-
-    else
-      puts"Такого поезда нет используйте существующие поезда или предварительно создайте его"
-    end
+    return unless all_train_include_train(number_train)
+    puts"Введите номер вагона который хотите удалить у данного поезда"
+    number_wagon = gets.chomp
+    return unless all_wagon_include_wagon(number_wagon)
+    return unless type_match?(number_train, number_wagon)
+    return unless train_stoped?(number_train)
+    return unless wagon_in_train?(number_train, number_wagon)
+    all_train[number_train].delete_wagon(all_wagon[number_wagon])
+    puts "От поезда отцеплен вагон #{all_wagon[number_wagon]}"
   end
 
   def train_move_next_station
     puts"Введите номер поезда который хотите отправить на следующую станцию"
     number_train = gets.chomp
-
-    if all_train.include?(number_train)
-      all_train[number_train].move_next_station
-    else
-      puts"Такого поезда нет используйте существующие поезда или предварительно создайте его используя train"
-    end
+    return unless all_train_include_train(number_train)
+    return unless all_train[number_train].move_next_station
+    puts "Поезд прибыл на следующую станцию - #{all_train[number_train].station.name}"
   end
 
   def train_move_previous_station
     puts"Введите номер поезда который хотите отправить на пердыдущую станцию"
     number_train = gets.chomp
-
-    if all_train.include?(number_train)
-      all_train[number_train].move_previous_station
-    else
-      puts"Такого поезда нет используйте существующие поезда или предварительно создайте его используя train"
-    end
+    return unless all_train_include_train(number_train)
+    return unless all_train[number_train].move_previous_station
+    puts "Поезд прибыл на предыдущую станцию - #{all_train[number_train].station.name}"
   end
 
   def train_by_type_in_station
     puts"Введите название станции на которой хотите посмотреть поезда"
     name_station = gets.chomp
+    return unless all_station_include_station(name_station)
+    puts"Введите тип поездов которые хотите посмотреть #{type_1} или #{type_2}"
+    type = gets.chomp
 
-    if all_station.include?(name_station)
-      puts"Введите тип поездов которые хотите посмотреть #{type_1} или #{type_2}"
-      type = gets.chomp
-
-      if type != type_2 || type_1
-        all_station[name_station].trains_by_type(type)
-      else
-        puts "Вы указали несуществующий тип поезда используйте #{type_1} или #{type_2}"
-      end
-
+    if type != type_2 || type_1
+      all_station[name_station].trains_by_type(type)
+      puts "Поезда типа #{type} на станции #{self} #{trains_by_type}"
     else
-      puts "Такой станции нет используйте существующие стацнии или предварительно создайте их"
+        puts "Вы указали несуществующий тип поезда используйте #{type_1} или #{type_2}"
+    end
+
+  end
+
+  def all_route_include_route(name_route)
+    if all_route.include?(name_route)
+      true
+    else
+      puts "Вы вводите название несуществующего маршрута используйте существующие маршруты или предварительно добавьте новый маршрут"
     end
   end
+
+  def all_station_include_station(name_station)
+    if all_station.include?(name_station)
+      true
+    else
+      puts "Указана несуществующая станция #{name_station}"
+    end
+  end
+
+  def all_wagon_include_wagon(number_wagon)
+    if all_wagon.include?(number_wagon)
+      true
+    else
+      puts "Такого вагона нет используйте существующие вагоны или предварительно создайте его"
+    end
+  end
+
+  def all_train_include_train(number_train)
+    if all_train.include?(number_train)
+      true
+    else
+      puts "Такого поезда нет используйте существующие поезда или предварительно создайте его"
+    end
+  end
+
+  def train_stoped?(number_train)
+    if all_train[number_train].speed.zero?
+      true
+    else
+      puts "Сначала требуется остановить поезд"
+    end
+  end
+
+  def type_match?(number_train, number_wagon)
+    if self.all_train[number_train].train_type == self.all_wagon[number_wagon].wagon_type
+      true
+    else
+      puts "Поезд может работать только с #{self.all_train[number_train].train_type} вагонами"
+    end
+  end
+
+  def wagon_in_train?(number_train, number_wagon)
+    if all_train[number_train].wagons.include?(number_wagon)
+      true
+    else
+      puts "В поезде нет данного вагона"
+    end
+  end
+
 end
