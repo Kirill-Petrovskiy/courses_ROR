@@ -1,4 +1,13 @@
 class Train
+  include Vendor
+  include InstanceCounter
+
+  @@all_trains = {}
+
+  def self.find(number)
+    @@all_trains[number]
+  end
+
   attr_reader :number, :train_type, :route, :wagons
   attr_accessor :station, :speed
 
@@ -6,6 +15,8 @@ class Train
     @number = number
     @wagons = {}
     @speed = 0
+    @@all_trains[number] = self
+    register_instance
   end
 
   def raise_speed(speed)
