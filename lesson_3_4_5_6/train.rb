@@ -1,6 +1,7 @@
 class Train
   include Vendor
   include InstanceCounter
+  include ValidateTrain
 
   @@all_trains = {}
 
@@ -12,6 +13,7 @@ class Train
   attr_accessor :station, :speed
 
   def initialize(number)
+    validate_train_number!(number)
     @number = number
     @wagons = {}
     @speed = 0

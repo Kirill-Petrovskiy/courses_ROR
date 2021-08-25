@@ -1,4 +1,9 @@
 class RailRoad
+  include Validate
+  include ValidateType
+  include ValidateStation
+  include ValidateTrain
+
   attr_reader :all_station, :all_train, :all_route, :all_wagon, :type_1, :type_2
 
   def initialize
@@ -89,17 +94,36 @@ class RailRoad
   end
 
   def create_station
-    puts "Введите название создаваемой станции"
-    name = gets.chomp
-    all_station[name] =  Station.new(name)
-    puts "Создана станция #{all_station[name]}"
+    begin
+      puts "Введите название создаваемой станции"
+      name_station = gets.chomp
+      validate_name!(name_station)
+      all_station[name_station] =  Station.new(name_station)
+      puts "Создана станция #{all_station[name_station]}"
+    rescue StandardError => e
+      puts e
+    retry
+    end 
   end
 
   def create_train
-    puts "Введите номер поезда"
-    number = gets.chomp
-    puts "Введите тип поезда #{type_1} или #{type_2 }"
-    type = gets.chomp
+    begin
+      puts "Введите номер поезда"
+      number = gets.chomp
+      validate_train_number!(number)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+     
+    begin
+      puts "Введите тип поезда #{type_1} или #{type_2 }"
+      type = gets.chomp
+      validate_train_type!(type)
+    rescue StandardError => e
+      puts e
+    retry
+    end
 
     if type == type_2
       all_train[number] = PassengerTrain.new(number)
@@ -107,55 +131,128 @@ class RailRoad
     elsif type == type_1
       all_train[number] = CargoTrain.new(number)
       puts "Добавлен поезд #{all_train[number]}"
-    else
-      puts "Нельзя добавить поезда с типом #{type} используйте #{type_1} или #{type_2 } в качестве типа поезда"
     end
-
   end
 
   def create_route
-    puts "Введите название маршрута"
-    name_route = gets.chomp
-    puts "Введите станцию отправления"
-    name_station = gets.chomp
+    validate_count_station!
+    begin 
+      puts "Введите название маршрута"
+      name_route = gets.chomp
+      validate_name!(name_route)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
+    begin
+      puts "Введите станцию отправления"
+      name_station = gets.chomp
+      validate_name!(name_station)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_station_include_station(name_station)
     first_station = all_station[name_station]
-    puts "Введите станцию назначения"
-    name_station = gets.chomp
+
+    begin
+      puts "Введите станцию назначения"
+      name_station = gets.chomp
+      validate_name!(name_station)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_station_include_station(name_station)
     last_station = all_station[name_station]
+
+
     all_route[name_route] = Route.new(first_station, last_station)
     puts"Создан маршрут #{all_route[name_route]}"
+
+    rescue StandardError => e
+      puts e
   end
 
+
   def add_station_in_route
-    puts "Введите название маршрута к которому хотите добавить станцию"
-    name_route = gets.chomp
+
+    begin
+      puts "Введите название маршрута к которому хотите добавить станцию"
+      name_route = gets.chomp
+      validate_name!(name_route)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_route_include_route(name_route)
-    puts "Введите название станции которую хотите добавить к маршруту #{all_route[name_route]}"
-    name_station = gets.chomp
+
+    begin
+      puts "Введите название станции которую хотите добавить к маршруту #{all_route[name_route]}"
+      name_station = gets.chomp
+      validate_name!(name_station)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_station_include_station(name_station)
     all_route[name_route].add_station(all_station[name_station])
     puts "Станция #{all_station[name_station]} добавлена в маршрут #{all_route[name_route]}"
+
   end
 
   def delete_station_in_route
-    puts "Введите название маршрута из которого хотите удалить станцию"
-    name_route = gets.chomp
+    begin
+      puts "Введите название маршрута из которого хотите удалить станцию"
+      name_route = gets.chomp
+      validate_name!(name_route)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_route_include_route(name_route)
-    puts "Введите название станции которую хотите удалить из маршрута #{all_route[name_route]}"
-    name_station = gets.chomp
+
+    begin
+      puts "Введите название станции которую хотите удалить из маршрута #{all_route[name_route]}"
+      name_station = gets.chomp
+      validate_name!(name_station)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_station_include_station(name_station)
     all_route[name_route].delete_station(all_station[name_station])
     puts "Станция #{all_station[name_station]} удалена из маршрута #{all_route[name_route]}"
   end
 
   def train_route
-    puts "Введите номер поезда которому хотите задать маршрут"
-    number_train = gets.chomp
+    begin
+      puts "Введите номер поезда которому хотите задать маршрут"
+      number_train = gets.chomp
+      validate_train_number!(number_train)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_train_include_train(number_train)
-    puts "Введите название маршрута который хотите задать поезду #{all_train[number_train]}"
-    name_route = gets.chomp
+
+    begin
+      puts "Введите название маршрута который хотите задать поезду #{all_train[number_train]}"
+      name_route = gets.chomp
+      validate_name!(name_route)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_route_include_route(name_route)
     all_train[number_train].route = all_route[name_route]
     puts "Поезду задан маршрут #{all_route[name_route]}"
@@ -163,10 +260,23 @@ class RailRoad
   end
 
   def create_wagon
+    begin
     puts "Введите номер вагона"
     number = gets.chomp
-    puts "Введите тип вагона #{type_1} или #{type_2}"
-    type = gets.chomp
+    validate_name!(number)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
+    begin
+      puts "Введите тип вагона #{type_1} или #{type_2}"
+      type = gets.chomp
+      validate_wagon_type!(type)
+    rescue StandardError => e
+      puts e
+    retry
+    end
 
     if type == type_2
       all_wagon[number] = PassengerWagon.new(number)
@@ -174,17 +284,31 @@ class RailRoad
     elsif type == type_1
       self.all_wagon[number] = CargoWagon.new(number)
       puts "Добавлен вагон#{self.all_wagon[number]}"
-    else
-      puts "Вы указали несуществующий тип вагона используйте #{type_1} или #{type_2}"
     end
   end
 
   def add_wagon_train
-    puts "Введите номер поезда к которому хотите добавить вагон"
-    number_train = gets.chomp
+    begin
+      puts "Введите номер поезда к которому хотите добавить вагон"
+      number_train = gets.chomp
+      validate_train_number!(number_train)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
+
     return unless all_train_include_train(number_train)
-    puts "Введите номер вагона который хотите добавить к данному поезду"
-    number_wagon = gets.chomp
+
+    begin
+      puts "Введите номер вагона который хотите добавить к данному поезду"
+      number_wagon = gets.chomp
+      validate_name!(number_wagon)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_wagon_include_wagon(number_wagon)
     return unless type_match?(number_train, number_wagon)
     return unless train_stoped?(number_train)
@@ -193,11 +317,26 @@ class RailRoad
   end
 
   def delete_wagon_train
-    puts"Введите номер поезда у которого хотите удалить вагон"
-    number_train = gets.chomp
+    begin
+      puts"Введите номер поезда у которого хотите удалить вагон"
+      number_train = gets.chomp
+      validate_train_number!(number_train)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_train_include_train(number_train)
-    puts"Введите номер вагона который хотите удалить у данного поезда"
-    number_wagon = gets.chomp
+
+    begin
+      puts"Введите номер вагона который хотите удалить у данного поезда"
+      number_wagon = gets.chomp
+      validate_name!(number_wagon)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_wagon_include_wagon(number_wagon)
     return unless type_match?(number_train, number_wagon)
     return unless train_stoped?(number_train)
@@ -207,27 +346,57 @@ class RailRoad
   end
 
   def train_move_next_station
-    puts"Введите номер поезда который хотите отправить на следующую станцию"
-    number_train = gets.chomp
+
+    begin
+      puts"Введите номер поезда который хотите отправить на следующую станцию"
+      number_train = gets.chomp
+      validate_train_number!(number_train)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_train_include_train(number_train)
     return unless all_train[number_train].move_next_station
     puts "Поезд прибыл на следующую станцию - #{all_train[number_train].station.name}"
   end
 
   def train_move_previous_station
-    puts"Введите номер поезда который хотите отправить на пердыдущую станцию"
-    number_train = gets.chomp
+
+    begin
+      puts"Введите номер поезда который хотите отправить на пердыдущую станцию"
+      number_train = gets.chomp
+      validate_train_number!(number_train)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_train_include_train(number_train)
     return unless all_train[number_train].move_previous_station
     puts "Поезд прибыл на предыдущую станцию - #{all_train[number_train].station.name}"
   end
 
   def train_by_type_in_station
-    puts"Введите название станции на которой хотите посмотреть поезда"
-    name_station = gets.chomp
+    begin
+      puts "Введите название станции на которой хотите посмотреть поезда"
+      name_station = gets.chomp
+      validate_name!(name_station)
+    rescue StandardError => e
+      puts e
+    retry
+    end
+
     return unless all_station_include_station(name_station)
-    puts"Введите тип поездов которые хотите посмотреть #{type_1} или #{type_2}"
-    type = gets.chomp
+
+    begin
+      puts "Введите тип поездов которые хотите посмотреть #{type_1} или #{type_2}"
+      type = gets.chomp
+      validate_train_type!(type)
+    rescue StandardError => e
+      puts e
+    retry
+    end
 
     if type != type_2 || type_1
       all_station[name_station].trains_by_type(type)
@@ -238,19 +407,19 @@ class RailRoad
 
   end
 
-  def all_route_include_route(name_route)
-    if all_route.include?(name_route)
-      true
-    else
-      puts "Вы вводите название несуществующего маршрута используйте существующие маршруты или предварительно добавьте новый маршрут"
-    end
-  end
-
   def all_station_include_station(name_station)
     if all_station.include?(name_station)
       true
     else
       puts "Указана несуществующая станция #{name_station}"
+    end
+  end
+
+  def all_route_include_route(name_route)
+    if all_route.include?(name_route)
+      true
+    else
+      puts "Вы вводите название несуществующего маршрута используйте существующие маршруты или предварительно добавьте новый маршрут"
     end
   end
 
